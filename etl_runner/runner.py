@@ -9,9 +9,20 @@ def get_source_cfg(cfg, source_id):
             return s
     raise ValueError(f"Fuente no encontrada: {source_id}")
 
-def run_notebook(path, params, out_dir):
-    args = ["papermill", path, os.path.join(out_dir,"out.ipynb")]
-    for k,v in params.items():
+def detect_kernel_from_notebook(nb_path):
+    import nbformat
+    nb = nbformat.read(open(nb_path), as_version=4)
+    kernelspec = nb.metadata.get("kernelspec", {})
+    return kernelspec.get("name")
+
+def run_notebook(path, params, out_dir, kernel=None):
+    if kernel is None:
+        kernel = detect_kernel_from_notebook(path)
+        if not kernel:
+            kernel = "python3"
+            #raise ValueError("No kernel name found in notebook and no override provided.")
+    args = ["papermill", path, os.path.join(out_dir, "out.ipynb"), "-k", kernel]
+    for k, v in params.items():
         args += ["-p", k, str(v)]
     subprocess.check_call(args)
 
@@ -36,6 +47,7 @@ def main():
     p.add_argument("--config", default="etl_config.yaml")
     p.add_argument("--source", required=True)
     p.add_argument("--out-dir", default="output")
+    p.add_argument("--kernel", default=None, help="Kernel name override for notebook execution")
     args = p.parse_args()
 
     cfg = load_config(args.config)
@@ -45,7 +57,7 @@ def main():
     path = os.path.join(src["path"], src["main"])
     params = src.get("params", {})
     if path.endswith(".ipynb"):
-        run_notebook(path, params, args.out_dir)
+        run_notebook(path, params, args.out_dir, kernel=args.kernel)
     else:
         run_script(path, params, args.out_dir)
 
