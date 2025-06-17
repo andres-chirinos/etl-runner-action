@@ -1,0 +1,21 @@
+name: 'ETL Runner'
+description: 'Ejecuta pipelines ETL multiproceso (notebooks/scripts) desde etl_config.yaml'
+inputs:
+  source:
+    description: 'ID de la fuente a ejecutar'
+    required: true
+  config-path:
+    description: 'Ruta al etl_config.yaml'
+    required: true
+    default: 'etl_config.yaml'
+  out-dir:
+    description: 'Directorio de salida'
+    required: false
+    default: 'output'
+runs:
+  using: 'docker'
+  image: 'ghcr.io/andres-chirinos/etl-runner:latest'
+  args:
+    - "--source=${{ inputs.source }}"
+    - "--config=${{ inputs.config-path }}"
+    - "--out-dir=${{ inputs.out-dir }}"
