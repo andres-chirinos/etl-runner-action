@@ -1,17 +1,17 @@
-# Dockerfile
-FROM ubuntu:22.04
+FROM python:3.8
 
-# Instalar Python, R, Julia, utilidades
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip r-base julia curl git && \
-    pip3 install --no-cache-dir papermill jupytext pyyaml
+#USER root
+#RUN apt-get update && apt-get install -y \
+#        python3-dev \
+        #build-essential \
+        #r-base \
+        #curl \
+        #git \ #&& rm -rf /var/lib/apt/lists/*
 
-# Instalar kernels de Jupyter
-RUN pip3 install ipykernel && \
-    Rscript -e "install.packages('IRkernel', repos='https://cloud.r-project.org/'); IRkernel::installspec()" && \
-    julia -e 'import Pkg; Pkg.add("IJulia")'
+RUN pip3 install --no-cache-dir papermill jupytext pyyaml ipykernel 
+# && \
+        # Rscript -e "install.packages('IRkernel', repos='https://cloud.r-project.org/'); IRkernel::installspec()"
 
-# Copiar la librería
 WORKDIR /app
 COPY . /app
 RUN pip3 install --no-cache-dir .
