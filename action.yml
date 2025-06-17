@@ -14,7 +14,7 @@ inputs:
     default: 'output'
 runs:
   using: 'docker'
-  image: 'ghcr.io/andres-chirinos/etl-runner:latest'
+  image: 'Dockerfile'
   args:
     - "--source=${{ inputs.source }}"
     - "--config=${{ inputs.config-path }}"
