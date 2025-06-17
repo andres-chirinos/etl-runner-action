@@ -41,6 +41,15 @@ def run_script(path, params, out_dir):
         raise RuntimeError("Formato no soportado")
     subprocess.check_call(cmd)
 
+def install_dependencies(dep_file):
+    if dep_file.endswith(".txt"):
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", dep_file])
+    elif dep_file.endswith(".yml") or dep_file.endswith(".yaml"):
+        subprocess.check_call(["conda", "env", "update", "-f", dep_file])
+    elif dep_file.endswith(".R"):
+        subprocess.check_call(["Rscript", dep_file])
+    # Puedes agregar más formatos según lo necesites
+
 def main():
     import argparse
     p = argparse.ArgumentParser()
@@ -54,10 +63,16 @@ def main():
     src = get_source_cfg(cfg, args.source)
     os.makedirs(args.out_dir, exist_ok=True)
 
+    # Instala dependencias si están definidas
+    dep_file = src.get("dependencies")
+    if dep_file:
+        install_dependencies(dep_file)
+
     path = os.path.join(src["path"], src["main"])
     params = src.get("params", {})
+    kernel = args.kernel or src.get("kernel")
     if path.endswith(".ipynb"):
-        run_notebook(path, params, args.out_dir, kernel=args.kernel)
+        run_notebook(path, params, args.out_dir, kernel=kernel)
     else:
         run_script(path, params, args.out_dir)
 

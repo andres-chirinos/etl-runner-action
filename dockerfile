@@ -1,19 +1,14 @@
 FROM python:3.8
 
-#USER root
-#RUN apt-get update && apt-get install -y \
-#        python3-dev \
-        #build-essential \
-        #r-base \
-        #curl \
-        #git \ #&& rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install --no-cache-dir papermill jupytext pyyaml ipykernel 
-# && \
-        # Rscript -e "install.packages('IRkernel', repos='https://cloud.r-project.org/'); IRkernel::installspec()"
+RUN apt-get update && \
+    apt-get install -y r-base julia && \
+    pip install --no-cache-dir papermill jupytext pyyaml ipykernel && \
+    python -m ipykernel install --user && \
+    R -e "install.packages('IRkernel', repos='https://cloud.r-project.org/'); IRkernel::installspec()" && \
+    julia -e 'using Pkg; Pkg.add("IJulia"); using IJulia;'
 
 WORKDIR /app
 COPY . /app
-RUN pip3 install --no-cache-dir .
+RUN pip install --no-cache-dir .
 
 ENTRYPOINT ["etl-runner"]
