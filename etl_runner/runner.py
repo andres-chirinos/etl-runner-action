@@ -42,13 +42,27 @@ def run_script(path, params, out_dir):
     subprocess.check_call(cmd)
 
 def install_dependencies(dep_file):
+    import shutil
     if dep_file.endswith(".txt"):
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", dep_file])
     elif dep_file.endswith(".yml") or dep_file.endswith(".yaml"):
+        # Instala conda si no existe
+        if not shutil.which("conda"):
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "conda"])
         subprocess.check_call(["conda", "env", "update", "-f", dep_file])
     elif dep_file.endswith(".R"):
+        # Instala R si no existe
+        if not shutil.which("Rscript"):
+            subprocess.check_call(["apt-get", "update"])
+            subprocess.check_call(["apt-get", "install", "-y", "r-base"])
         subprocess.check_call(["Rscript", dep_file])
-    # Puedes agregar más formatos según lo necesites
+    elif dep_file.endswith(".jl"):
+        # Instala Julia si no existe
+        if not shutil.which("julia"):
+            subprocess.check_call(["apt-get", "update"])
+            subprocess.check_call(["apt-get", "install", "-y", "julia"])
+        subprocess.check_call(["julia", dep_file])
+    # Puedes agregar más formatos según lo necesites    
 
 def main():
     import argparse

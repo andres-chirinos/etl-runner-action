@@ -1,11 +1,11 @@
-FROM python:3.8
+FROM python:3.8-slim-buster
 
-RUN apt-get update && \
-    apt-get install -y r-base julia && \
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends curl && \
     pip install --no-cache-dir papermill jupytext pyyaml ipykernel && \
     python -m ipykernel install --user && \
-    R -e "install.packages('IRkernel', repos='https://cloud.r-project.org/'); IRkernel::installspec()" && \
-    julia -e 'using Pkg; Pkg.add("IJulia"); using IJulia;'
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . /app
