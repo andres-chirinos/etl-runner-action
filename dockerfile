@@ -13,7 +13,7 @@ RUN pip3 install --no-cache-dir papermill jupytext pyyaml ipykernel
         # Rscript -e "install.packages('IRkernel', repos='https://cloud.r-project.org/'); IRkernel::installspec()"
 
 WORKDIR /app
-COPY . /app
+COPY /src /app
 RUN pip3 install --no-cache-dir .
 
 ENTRYPOINT ["etl-runner"]
